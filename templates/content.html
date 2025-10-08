@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>用户中心</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            margin-bottom: 30px;
+        }
+
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        #user-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">人脸识别系统</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="logout-link">退出登录</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="welcome">
+            <h2>欢迎, <span id="username"></span>！</h2>
+            <p>这是您的个人控制面板，您可以在这里管理系统功能。</p>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <img id="user-avatar" src="" alt="头像">
+                <h4>功能1</h4>
+            </div>
+            <!-- 可添加更多功能卡 -->
+        </div>
+    </div>
+
+    <script>
+        // 获取用户名
+        const username = localStorage.getItem('username');
+        if (!username) {
+            // 未登录直接跳转到首页
+            window.location.replace('/');
+        }
+        document.getElementById('username').textContent = username;
+
+        // 获取头像
+        fetch(`/get_avatar/${username}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.image) {
+                    document.getElementById('user-avatar').src = data.image;
+                } else {
+                    console.log('头像未找到');
+                }
+            })
+            .catch(err => console.error(err));
+
+        // 退出登录
+        document.getElementById('logout-link').addEventListener('click', function (e) {
+            e.preventDefault();
+            localStorage.clear(); // 清除登录信息
+            window.location.replace('/'); // 跳回首页
+        });
+
+        // 禁止浏览器返回到已登录页面
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+    </script>
+</body>
+
+</html>

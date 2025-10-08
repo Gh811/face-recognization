@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>用户注册</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        form {
+            text-align: center;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .image-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+        }
+
+        input[type="text"],
+        input[type="file"],
+        button {
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 15px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        #cameraOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #cameraContainer {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #cameraCircle {
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            background-color: black;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        #cameraView {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #closeOverlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #takePhoto {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #takePhoto:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script>
+        function previewImage(input) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('imagePreview').src = e.target.result;
+                document.getElementById('imageContainer').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function openCamera() {
+            const cameraOverlay = document.getElementById('cameraOverlay');
+            const video = document.getElementById('cameraView');
+
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    video.srcObject = stream;
+                    cameraOverlay.style.display = 'flex';
+                })
+                .catch((error) => {
+                    alert('无法访问摄像头: ' + error.message);
+                });
+        }
+
+        function closeCamera() {
+            const video = document.getElementById('cameraView');
+            const stream = video.srcObject;
+
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach((track) => track.stop());
+            }
+
+            video.srcObject = null;
+            document.getElementById('cameraOverlay').style.display = 'none';
+        }
+
+        function dataURLtoBlob(dataURL) {
+            const parts = dataURL.split(',');
+            const byteString = atob(parts[1]);
+            const mimeString = parts[0].split(':')[1].split(';')[0];
+
+            const arrayBuffer = new ArrayBuffer(byteString.length);
+            const uintArray = new Uint8Array(arrayBuffer);
+            for (let i = 0; i < byteString.length; i++) {
+                uintArray[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([uintArray], { type: mimeString });
+        }
+
+        function takePhoto() {
+            const video = document.getElementById('cameraView');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const photoData = canvas.toDataURL('image/png');
+
+            document.getElementById('imagePreview').src = photoData;
+            document.getElementById('imageContainer').style.display = 'block';
+
+            const blob = dataURLtoBlob(photoData);
+            const file = new File([blob], "photo.png", { type: "image/png" });
+
+            const inputImage = document.getElementById('image');
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            inputImage.files = dataTransfer.files;
+
+            closeCamera();
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const form = event.target;
+            // const formData = new FormData(form);
+
+            const username = document.getElementById('regUsername').value.trim();
+            const imageInput = document.getElementById('image');
+
+            if (!username) {
+                alert("请填写用户名！");
+                return;
+            }
+
+            if (!imageInput.files || imageInput.files.length === 0) {
+                alert("请上传或拍摄一张人脸图片！");
+                return;
+            }
+
+            fetch('/register', {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message == "注册成功") {
+                        form.reset();  // 重置 input
+                        document.getElementById('imagePreview').src = '';
+                        document.getElementById('imageContainer').style.display = 'none';
+                        alert('注册成功!');
+                        window.location.href = '/login_page';
+                    }
+                    else {
+                        form.reset();  // 重置 input
+                        document.getElementById('imagePreview').src = '';
+                        document.getElementById('imageContainer').style.display = 'none';
+                        alert('注册失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('注册失败: ' + error.message);
+                });
+        }
+    </script>
+</head>
+
+<body>
+    <div>
+        <h1>用户注册</h1>
+        <form method="POST" action="/register" enctype="multipart/form-data" onsubmit="handleFormSubmit(event)">
+            <label for="regUsername">用户名:</label>
+            <input type="text" id="regUsername" name="username" required><br><br>
+
+            <label for="image">上传人脸图片:</label>
+            <input type="file" id="image" name="image" accept="image/*" onchange="previewImage(this)"><br><br>
+
+            <button type="button" onclick="openCamera()">打开摄像头拍照</button>
+
+            <div id="imageContainer" class="image-container" style="display:none;">
+                <img id="imagePreview" class="profile-image" alt="Image preview">
+            </div>
+
+            <button type="submit">注册</button>
+        </form>
+
+        <br>
+        <a href="/">已有账号？去登录</a>
+    </div>
+
+    <!-- 摄像头弹窗 -->
+    <div id="cameraOverlay">
+        <div id="cameraContainer">
+            <button id="closeOverlay" onclick="closeCamera()">&times;</button>
+            <div id="cameraCircle">
+                <video id="cameraView" autoplay></video>
+            </div>
+            <button id="takePhoto" onclick="takePhoto()">拍照</button>
+        </div>
+    </div>
+</body>
+
+</html>

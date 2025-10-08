@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <title>人脸识别系统首页</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(102, 166, 255, 0.15);
+            padding: 40px 32px 32px 32px;
+            width: 350px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #3385ff;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px 0;
+            margin: 18px 0;
+            font-size: 18px;
+            font-weight: 500;
+            color: #fff;
+            background: linear-gradient(90deg, #3385ff 0%, #66a6ff 100%);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: linear-gradient(90deg, #66a6ff 0%, #3385ff 100%);
+        }
+
+        .icon {
+            font-size: 48px;
+            color: #3385ff;
+            margin-bottom: 16px;
+        }
+
+        .desc {
+            color: #666;
+            margin-bottom: 32px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="icon">
+            <i class="fa-solid fa-face-smile"></i>
+        </div>
+        <h1>人脸识别系统</h1>
+        <div class="desc">欢迎使用人脸识别注册与登录系统。<br>请根据需要选择操作。</div>
+        <a href="/register_page" class="btn">人脸注册</a>
+        <a href="/login_page" class="btn">人脸登录</a>
+
+    </div>
+</body>
+
+</html>
