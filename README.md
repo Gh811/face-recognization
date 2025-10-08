@@ -30,6 +30,6 @@ ngrok http 7797
 ~~~
 ![演示图片](images/ngrok.png)
 
-### 2. 再次启动本地服务
+### 3. 再次启动本地服务
 ```bash
 python app.py
